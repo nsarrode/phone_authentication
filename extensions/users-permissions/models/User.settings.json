@@ -61,7 +61,8 @@
     },
     "phone_number": {
       "type": "string",
-      "required": true
+      "required": true,
+      "unique": true
     }
   }
 }

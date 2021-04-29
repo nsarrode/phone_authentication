@@ -507,7 +507,7 @@ module.exports = {
         null,
         formatError({
           id: "Auth.form.error.email.format",
-          message: "Please provide valid email address.",
+          message: "Please provide valid phone number.",
         })
       );
     }
@@ -531,12 +531,30 @@ module.exports = {
       );
     }
 
+    // check that the email be unique.
     if (user && user.provider !== params.provider && settings.unique_email) {
       return ctx.badRequest(
         null,
         formatError({
           id: "Auth.form.error.email.taken",
           message: "Email is already taken.",
+        })
+      );
+    }
+
+    const unique_phone = await strapi
+      .query("user", "users-permissions")
+      .findOne({
+        phone_number: params.phone_number,
+      });
+
+    // check that the phone number be unique.
+    if (unique_phone) {
+      return ctx.badRequest(
+        null,
+        formatError({
+          id: "Auth.form.error.phone.taken",
+          message: "Phone is already taken.",
         })
       );
     }
