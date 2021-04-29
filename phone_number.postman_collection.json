@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "fc1fcffd-185c-4859-ba45-eaa1fd5c3c30",
+		"name": "phone_number",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"nahuel\",\r\n    \"phone_number\": \"2234388046\",\r\n    \"email\": \"nahuel.sarrode@globant.com\",\r\n    \"password\": \"Luffy1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:1337/auth/local/register",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"auth",
+								"local",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone_number\": \"2234388046\",\r\n    \"password\": \"Luffy1\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1337/auth/local",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"auth",
+								"local"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "emailConfirmation",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"nahuel\",\r\n    \"email\": \"nahuel.sarrode@globant.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1337/auth/email-confirmation?confirmation=607841",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1337",
+							"path": [
+								"auth",
+								"email-confirmation"
+							],
+							"query": [
+								{
+									"key": "confirmation",
+									"value": "607841"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
