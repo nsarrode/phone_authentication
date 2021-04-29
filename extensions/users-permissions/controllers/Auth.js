@@ -13,6 +13,9 @@ const grant = require("grant-koa");
 const { sanitizeEntity } = require("strapi-utils");
 
 const emailRegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+// check that a number correspond with Argentina format
+// if you want another country validation just modify the phoneRegex.
 const phoneRegex = /^(?:(?:00)?549?)?0?(?:11|[2368]\d)(?:(?=\d{0,2}15)\d{2})??\d{8}$/;
 
 const regionPhone = (phone) => {
@@ -36,6 +39,10 @@ module.exports = {
       environment: "",
       type: "plugin",
       name: "users-permissions",
+    });
+
+    const settings = await store.get({
+      key: "advanced",
     });
 
     if (provider === "local") {
@@ -145,14 +152,27 @@ module.exports = {
           })
         );
       } else {
-        ctx.send({
+        // TODO: add validate Phone token.
+        /* ctx.send({
           jwt: strapi.plugins["users-permissions"].services.jwt.issue({
             id: user.id,
           }),
           user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
             model: strapi.query("user", "users-permissions").model,
           }),
-        });
+        }); */
+
+        if (settings.email_confirmation) {
+          try {
+            await strapi.plugins[
+              "users-permissions"
+            ].services.user.sendConfirmationEmail(user);
+          } catch (err) {
+            return ctx.badRequest(null, err);
+          }
+
+          return ctx.send({ message: "check your email" });
+        }
       }
     } else {
       if (!_.get(await store.get({ key: "grant" }), [provider, "enabled"])) {
@@ -526,7 +546,7 @@ module.exports = {
         null,
         formatError({
           id: "Auth.form.error.email.taken",
-          message: "Email is already taken.",
+          message: "Name is already taken.",
         })
       );
     }
