@@ -581,7 +581,7 @@ module.exports = {
           return ctx.badRequest(null, err);
         }
 
-        return ctx.send({ user: sanitizedUser });
+        return ctx.send({ message: "check your email" });
       }
 
       const jwt = strapi.plugins["users-permissions"].services.jwt.issue(
@@ -634,7 +634,8 @@ module.exports = {
         }),
       });
     } else {
-      const settings = await strapi
+      //this is useful if you want to redirect an user when all it's okay.
+      /*  const settings = await strapi
         .store({
           environment: "",
           type: "plugin",
@@ -643,7 +644,15 @@ module.exports = {
         })
         .get();
 
-      ctx.redirect(settings.email_confirmation_redirection || "/");
+      ctx.redirect(settings.email_confirmation_redirection || "/"); */
+
+      // if the confirms phone token is okay return the user and jwt.
+      ctx.send({
+        jwt: jwtService.issue({ id: user.id }),
+        user: sanitizeEntity(user, {
+          model: strapi.query("user", "users-permissions").model,
+        }),
+      });
     }
   },
 
