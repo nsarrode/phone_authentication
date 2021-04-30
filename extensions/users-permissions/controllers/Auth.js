@@ -61,17 +61,6 @@ module.exports = {
         );
       }
 
-      // The password is required.
-      if (!params.password) {
-        return ctx.badRequest(
-          null,
-          formatError({
-            id: "Auth.form.error.password.provide",
-            message: "Please provide your password.",
-          })
-        );
-      }
-
       const query = { provider };
 
       // Check if the provided identifier is an email or not.
@@ -127,52 +116,16 @@ module.exports = {
         );
       }
 
-      // The user never authenticated with the `local` provider.
-      if (!user.password) {
-        return ctx.badRequest(
-          null,
-          formatError({
-            id: "Auth.form.error.password.local",
-            message:
-              "This user never set a local password, please login with the provider used during account creation.",
-          })
-        );
-      }
-
-      const validPassword = await strapi.plugins[
-        "users-permissions"
-      ].services.user.validatePassword(params.password, user.password);
-
-      if (!validPassword) {
-        return ctx.badRequest(
-          null,
-          formatError({
-            id: "Auth.form.error.invalid",
-            message: "Identifier or password invalid.",
-          })
-        );
-      } else {
-        // TODO: add validate Phone token.
-        /* ctx.send({
-          jwt: strapi.plugins["users-permissions"].services.jwt.issue({
-            id: user.id,
-          }),
-          user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
-            model: strapi.query("user", "users-permissions").model,
-          }),
-        }); */
-
-        if (settings.email_confirmation) {
-          try {
-            await strapi.plugins[
-              "users-permissions"
-            ].services.user.sendConfirmationEmail(user);
-          } catch (err) {
-            return ctx.badRequest(null, err);
-          }
-
-          return ctx.send({ message: "check your email" });
+      if (settings.email_confirmation) {
+        try {
+          await strapi.plugins[
+            "users-permissions"
+          ].services.user.sendConfirmationEmail(user);
+        } catch (err) {
+          return ctx.badRequest(null, err);
         }
+
+        return ctx.send({ message: "check your email" });
       }
     } else {
       if (!_.get(await store.get({ key: "grant" }), [provider, "enabled"])) {
@@ -438,17 +391,6 @@ module.exports = {
       provider: "local",
     };
 
-    // Password is required.
-    if (!params.password) {
-      return ctx.badRequest(
-        null,
-        formatError({
-          id: "Auth.form.error.password.provide",
-          message: "Please provide your password.",
-        })
-      );
-    }
-
     // phone is required.
     if (!params.phone_number) {
       return ctx.badRequest(
@@ -467,23 +409,6 @@ module.exports = {
         formatError({
           id: "Auth.form.error.email.provide",
           message: "Please provide your email.",
-        })
-      );
-    }
-
-    // Throw an error if the password selected by the user
-    // contains more than three times the symbol '$'.
-    if (
-      strapi.plugins["users-permissions"].services.user.isHashed(
-        params.password
-      )
-    ) {
-      return ctx.badRequest(
-        null,
-        formatError({
-          id: "Auth.form.error.password.format",
-          message:
-            "Your password cannot contain more than three times the symbol `$`.",
         })
       );
     }
@@ -533,10 +458,6 @@ module.exports = {
     }
 
     params.role = role.id;
-    params.password = await strapi.plugins[
-      "users-permissions"
-    ].services.user.hashPassword(params);
-
     const user = await strapi.query("user", "users-permissions").findOne({
       email: params.email,
     });
